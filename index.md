@@ -374,3 +374,63 @@ my_model = RandomForestClassifier(n_estimators=100,
 perm = PermutationImportance(my_model, random_state=1).fit(X_test, y_test)
 eli5.show_weights(perm, feature_names = X_test.columns.tolist())
 ```
+
+## [Partial Dependence Plots](https://www.kaggle.com/code/dansbecker/partial-plots)
+Partial dependence plots show *how* a feature affects predictions. Like permutation importance, partial dependence plots are calculated after a model has been fit. The model is fit on real data that has not been artificially manipulated in any way.
+
+```python
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+
+# Load data, assign X and y, split data into train and test data
+data = pd.read_csv('../input/fifa-2018-match-statistics/FIFA 2018 Statistics.csv')
+y = (data['Man of the Match'] == "Yes")  # Convert from string "Yes"/"No" to binary
+feature_names = [i for i in data.columns if data[i].dtype in [np.int64]]
+X = data[feature_names]
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
+tree_model = DecisionTreeClassifier(random_state=0, max_depth=5, min_samples_split=5).fit(X_train, y_train)
+
+# Decision Tree
+from sklearn import tree
+import graphviz
+
+tree_graph = tree.export_graphviz(tree_model, out_file=None, feature_names=feature_names)
+graphviz.Source(tree_graph)
+
+# Partial Dependence Plot using PDPBox Library
+from matplotlib import pyplot as plt
+from pdpbox import pdp, get_dataset, info_plots
+
+# Sample Plot 1
+pdp_goals = pdp.pdp_isolate(model=tree_model, dataset=X_test, model_features=feature_names, feature='Goal Scored')
+
+pdp.pdp_plot(pdp_goals, 'Goal Scored')
+plt.show()
+
+# Sample Plot 2
+feature_to_plot = 'Distance Covered (Kms)'
+pdp_dist = pdp.pdp_isolate(model=tree_model, dataset=X_test, model_features=feature_names, feature=feature_to_plot)
+
+pdp.pdp_plot(pdp_dist, feature_to_plot)
+plt.show()
+
+# Random Forest PDP
+# Build Random Forest model
+rf_model = RandomForestClassifier(random_state=0).fit(X_train, y_train)
+
+pdp_dist = pdp.pdp_isolate(model=rf_model, dataset=X_test, model_features=feature_names, feature=feature_to_plot)
+
+pdp.pdp_plot(pdp_dist, feature_to_plot)
+plt.show()
+
+# 2D Partial Dependence Plot
+# Similar to previous PDP plot except we use pdp_interact instead of pdp_isolate and pdp_interact_plot instead of pdp_isolate_plot
+features_to_plot = ['Goal Scored', 'Distance Covered (Kms)']
+inter1  =  pdp.pdp_interact(model=tree_model, dataset=X_test, model_features=feature_names, features=features_to_plot)
+
+pdp.pdp_interact_plot(pdp_interact_out=inter1, feature_names=features_to_plot, plot_type='contour')
+plt.show()
+```
