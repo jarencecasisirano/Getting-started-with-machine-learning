@@ -2,6 +2,7 @@
 
 ## [Basic data exploration](https://www.kaggle.com/code/dansbecker/basic-data-exploration)
 Use [Pandas](https://pandas.pydata.org/docs/) library. Access and explore the data.
+
 ```python
 # Import pandas library
 import pandas as pd
@@ -15,6 +16,7 @@ data.describe()
 We select the *prediction target (**y**)* which is the column we want to predict and *predictive features (**X**)* which are the columns we use to make predictions. To select columns, we can use either of the following methods:
 1. Dot-notation.
 2. Selecting with column list.
+3. 
 ```python
 # Dot notation
 y = data.column_to_predict
@@ -26,6 +28,7 @@ X = data[features]
 
 ## Model Validation
 To perform model validation, we split our data into two: *training data* and *test data*. We use the [scikit-learn](https://scikit-learn.org/stable/index.html) library function `train_test_split` to do this. The training data set is used to fit the model while the test data set is used to validate the model.
+
 ```python
 from sklearn.model_selection import train_test_split
 
@@ -39,6 +42,7 @@ In creating the model, we use the [scikit-learn](https://scikit-learn.org/stable
 2. Fit the training data to the model.
 3. Predict.
 4. Evaluate the model *(e.g., Mean Absolute Error or MAE)*.
+
 ```python
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_absolute_error
@@ -58,6 +62,7 @@ mean_absolute_error(y_test, prediction)
 
 ## Saving the output
 To save the output, we create [Pandas](https://pandas.pydata.org/docs/) dataframe then convert it to a CSV file.
+
 ```python
 output = pd.DataFrame({'Id': data.Id,
                        'Predicted_Column': prediction})
@@ -71,6 +76,7 @@ output.to_csv('submission.csv', index=False)
 - **Overfitting**: the model matches the training data almost perfectly, but does poorly in validation and other new data.
 
 To overcome underfitting and overfitting, we control the tree depth using the `max_leaf_nodes` argument of the model. We can define a utility function to compare MAE from different `max_leaf_nodes` values.
+
 ```python
 from sklearn.metrics import mean_absolute_error
 from sklearn.tree import DecisionTreeRegressor
@@ -91,6 +97,7 @@ for max_leaf_nodes in [5, 50, 500, 5000]:
 
 ## Improving the model with [Random Forests](https://www.kaggle.com/code/dansbecker/random-forests)
 The machine learning model above uses a **decision tree**. A much more sophisticated machine learning algorithm is **random forest**. The random forest uses many trees, and it makes a prediction by averaging the predictions of each component tree. It generally has much better predictive accuracy than a single decision tree and it works well with default parameters.
+
 ```python
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
@@ -107,6 +114,7 @@ We usually have to deal with missing data values. There are three approaches in 
 - Drop columns with missing values: If only few entries are missing, the model might lose access to a lot of potentially useful information.
 - Imputation: Filling in missing values with some number.
 - Extended Imputation: Imputing missing values and adding a column to keep track of imputed entries.
+
 ```python
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
@@ -171,6 +179,7 @@ In most machine learning models in Python, preprocessing categorical variables i
 - Drop categorical variables: only works well if the columns did not contain useful information.
 - Ordinal encoding: assigns each unique value to a different integer.
 - One-Hot Encoding: creates new columns indicating the presence (or absence) of each possible value in the original.
+
 ```python
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
@@ -235,6 +244,7 @@ We use pipelines to keep our data preprocessing and modeling code organized. Con
 1. Define preprocessing steps.
 2. Define the model.
 3. Create and evaluate the pipeline.
+
 ```python
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
@@ -282,6 +292,7 @@ print('MAE:', score)
 
 ## [Cross-Validation](https://www.kaggle.com/code/alexisbcook/cross-validation)
 Cross-validation means running the modeling process on different subsets of the data (called folds) to get multiple measures of model quality. From [scikit-learn](https://scikit-learn.org/stable/index.html), we can set the number of folds using the `cv` parameter and obtain the cross-validation scores with the `cross_val_score()` function. Using a pipeline makes cross-validation code remarkably straightforward.
+
 ```python
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.pipeline import Pipeline
