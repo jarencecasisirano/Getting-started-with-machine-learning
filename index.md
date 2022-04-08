@@ -16,7 +16,7 @@ data.describe()
 We select the *prediction target (**y**)* which is the column we want to predict and *predictive features (**X**)* which are the columns we use to make predictions. To select columns, we can use either of the following methods:
 1. Dot-notation.
 2. Selecting with column list.
-3. 
+
 ```python
 # Dot notation
 y = data.column_to_predict
