@@ -337,3 +337,40 @@ my_model.fit(X_train, y_train,
 **Data leakage** (or leakage) happens when your training data contains information about the target, but similar data will not be available when the model is used for prediction. This leads to high performance on the training set (and possibly even the validation data), but the model will perform poorly in production. There are two main types of leakage:
 1. Target leakage - occurs when your predictors include data that will not be available at the time you make predictions.
 2. Train-test contamination - occurs when you aren't careful to distinguish training data from validation data.
+
+# Machine learning explainability
+
+## [Permutation Importance](https://www.kaggle.com/code/dansbecker/permutation-importance/tutorial)
+**Feature importance** is a concept that answers the question: what features have the biggest impact on predictions? One such approach is **permutation importance**. Note that permutation importance is calculated after a model has been fitted. So we won't change the model or change what predictions we'd get for a given value of features. The process of this approach is as follows:
+1. Get a trained model.
+2. Shuffle the values in a single column, make predictions using the resulting dataset. Use these predictions and the true target values to calculate how much the loss function suffered from shuffling. That performance deterioration measures the importance of the variable you just shuffled.
+3. Return the data to the original order (undoing the shuffle from step 2). Now repeat step 2 with the next column in the dataset, until you have calculated the importance of each column.
+
+```python
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+import eli5
+from eli5.sklearn import PermutationImportance
+
+# Load the data
+data = pd.read_csv('../input/fifa-2018-match-statistics/FIFA 2018 Statistics.csv')
+
+# Assign prediction target to a variable
+y = (data['Man of the Match'] == "Yes")  # Convert from string "Yes"/"No" to binary
+
+# Assign predictive features to a variable
+feature_names = [i for i in data.columns if data[i].dtype in [np.int64]]
+X = data[feature_names]
+
+# Split the data into train and test data
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
+
+# Define the model
+my_model = RandomForestClassifier(n_estimators=100,
+                                  random_state=0).fit(X_train, y_train)
+
+perm = PermutationImportance(my_model, random_state=1).fit(X_test, y_test)
+eli5.show_weights(perm, feature_names = X_test.columns.tolist())
+```
