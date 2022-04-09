@@ -434,3 +434,37 @@ inter1  =  pdp.pdp_interact(model=tree_model, dataset=X_test, model_features=fea
 pdp.pdp_interact_plot(pdp_interact_out=inter1, feature_names=features_to_plot, plot_type='contour')
 plt.show()
 ```
+
+## [Advanced Uses of SHAP Values](https://www.kaggle.com/code/dansbecker/advanced-uses-of-shap-values)
+### Summary Plots
+SHAP summary plots give us a birds-eye view of feature importance and what is driving it.
+- Vertical location shows what feature it is depicting
+- Color shows whether that feature was high or low for that row of the dataset
+- Horizontal location shows whether the effect of that value caused a higher or lower prediction
+
+```python
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+
+# Load data, assign X and y variables, split data into train and test data sets
+data = pd.read_csv('../input/fifa-2018-match-statistics/FIFA 2018 Statistics.csv')
+y = (data['Man of the Match'] == "Yes")  # Convert from string "Yes"/"No" to binary
+feature_names = [i for i in data.columns if data[i].dtype in [np.int64, np.int64]]
+X = data[feature_names]
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
+my_model = RandomForestClassifier(random_state=0).fit(X_train, y_train)
+
+import shap  # package used to calculate Shap values
+
+# Create object that can calculate shap values
+explainer = shap.TreeExplainer(my_model)
+
+# calculate shap values. This is what we will plot.
+# Calculate shap_values for all of X_test rather than a single row, to have more data for plot.
+shap_values = explainer.shap_values(X_test)
+
+# Make plot. Index of [1] is explained in text below.
+shap.summary_plot(shap_values[1], X_test)
+```
